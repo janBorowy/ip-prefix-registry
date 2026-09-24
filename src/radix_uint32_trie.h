@@ -3,23 +3,29 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "singly_list.h"
 
 #define MAX_EDGE_COUNT 100
 
-struct Edge {
-    uint32_t value;
+struct BinaryValue {
+    uint32_t bits;
     uint8_t length;
+};
+
+struct Edge {
+    struct BinaryValue value;
     struct Node *target;
 };
 
 struct Node {
-    struct Edge edges[MAX_EDGE_COUNT]; // TODO: linked list here
-    int num_edges;
-    bool is_terminal;
+    struct SinglyList *edges;
+    bool is_leaf;
 };
 
-int add(struct Node *root, uint32_t value, uint8_t length);
-int del(struct Node *root, uint32_t base, uint8_t mask);
-uint8_t check(struct Node *root, uint32_t val);
+struct Node *radix_uint32_trie_init();
+int radix_uint32_trie_add(struct Node *root, struct BinaryValue value);
+int radix_uint32_trie_delete(struct Node *root, struct BinaryValue value);
+uint8_t raidx_int32_get_longest_prefix(struct Node *root, uint32_t val);
+void radix_uint32_trie_destroy(struct Node *root);
 
 #endif

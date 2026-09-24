@@ -18,6 +18,18 @@ bool is_prefix_of(uint32_t prefix_val, uint8_t prefix_len, uint32_t num_val, uin
     return num_val >> num_len - prefix_len == prefix_val;
 }
 
+uint32_t get_prefix(uint32_t value, uint8_t value_len, uint8_t prefix_len) {
+    if (prefix_len == 0) {
+        return 0;
+    }
+
+    if (prefix_len > value_len) {
+        return value_len;
+    }
+
+    return value >> value_len - prefix_len;
+}
+
 uint32_t get_suffix(uint32_t value, uint8_t suffix_length) {
     if (suffix_length == 0) {
         return 0;
