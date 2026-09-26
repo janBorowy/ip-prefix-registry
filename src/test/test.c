@@ -29,6 +29,7 @@ static MunitResult test_radix_binary_trie(const MunitParameter params[], void* d
 
 static MunitResult test_ipv4_subnet_registry(const MunitParameter params[], void* data) {
     ipv4_subnet_registry_test();
+    ipv4_subnet_registry_many_subnets_test();
     return MUNIT_OK;
 }
 
@@ -60,6 +61,14 @@ static MunitTest test_suite_tests[] = {
     {
         (char *) "/ip-registry/ipv4_subnet_registry",
         test_ipv4_subnet_registry,
+        NULL,
+        NULL,
+        MUNIT_TEST_OPTION_NONE,
+        NULL
+    },
+    {
+        NULL,
+        NULL,
         NULL,
         NULL,
         MUNIT_TEST_OPTION_NONE,

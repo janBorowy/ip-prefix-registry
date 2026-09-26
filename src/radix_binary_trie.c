@@ -4,7 +4,7 @@
 #include <assert.h>
 
 struct Edge *step(struct Node *root, struct BinaryString *value, struct BinaryString *value_left, int *matched_elements_num);
-void add_edge_and_node(struct Node *node, struct BinaryString str, struct SinglyList *edges_list);
+void add_edge_and_node(struct Node *node, struct BinaryString str, struct SinglyList *edges_list, bool is_terminal);
 void delete_node(struct Edge *edge_to_deletee, struct Node *root, struct Edge *edge_to_parent);
 void collapse_node(struct Edge *edge_to_node);
 
@@ -50,6 +50,7 @@ int radix_binary_trie_add(struct Node *node, struct BinaryString value) {
         struct SinglyList *edges_to_move;
         struct BinaryString new_edge_str = get_suffix(str_left, str_left.length - common_prefix_len);
         struct BinaryString temp_edge_str = get_suffix(sharing_edge->str, sharing_edge->str.length - common_prefix_len);
+        bool target_is_terminal = sharing_edge->target->is_terminal;
 
         sharing_edge->str = get_prefix(sharing_edge->str, common_prefix_len);
 
@@ -57,16 +58,16 @@ int radix_binary_trie_add(struct Node *node, struct BinaryString value) {
             sharing_edge->target->is_terminal = true;
             edges_to_move = sharing_edge->target->edges;
             sharing_edge->target->edges = NULL;
-            add_edge_and_node(sharing_edge->target, temp_edge_str, edges_to_move);
+            add_edge_and_node(sharing_edge->target, temp_edge_str, edges_to_move, target_is_terminal);
         } else {
             sharing_edge->target->is_terminal = false;
             edges_to_move = sharing_edge->target->edges;
             sharing_edge->target->edges = NULL;
-            add_edge_and_node(sharing_edge->target, new_edge_str, NULL);
-            add_edge_and_node(sharing_edge->target, temp_edge_str, edges_to_move);
+            add_edge_and_node(sharing_edge->target, new_edge_str, NULL, true);
+            add_edge_and_node(sharing_edge->target, temp_edge_str, edges_to_move, target_is_terminal);
         }
     } else {
-        add_edge_and_node(node, str_left, NULL);
+        add_edge_and_node(node, str_left, NULL, true);
     }
 
     return 0;
@@ -198,11 +199,16 @@ struct Edge *step(struct Node *node,
     return NULL;
 }
 
-void add_edge_and_node(struct Node *node, struct BinaryString str, struct SinglyList *edges_list) {
+void add_edge_and_node(
+    struct Node *node,
+    struct BinaryString str,
+    struct SinglyList *edges_list,
+    bool is_terminal
+) {
     struct Edge *edge = calloc(1, sizeof(struct Edge));
     edge->str = str;
     edge->target = radix_binary_trie_init();
-    edge->target->is_terminal = true;
+    edge->target->is_terminal = is_terminal;
     edge->target->edges = edges_list;
 
     node->edges = singly_list_prepend(node->edges, edge, sizeof(struct Edge));
