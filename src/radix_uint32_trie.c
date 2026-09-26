@@ -6,7 +6,7 @@
 #include "uint32_util.h"
 
 struct Node *step(struct Node *root, struct BinaryValue *value, struct BinaryValue *value_left, int *matched_elements_num);
-void add_edge_and_leaf(struct Node *node, uint32_t bits, uint8_t len);
+void add_edge_and_node(struct Node *node, uint32_t bits, uint8_t len, struct SinglyList *edges_list);
 
 struct Node *radix_uint32_trie_init() {
     struct Node *node = calloc(1, sizeof(struct Node));
@@ -18,7 +18,6 @@ struct Node *radix_uint32_trie_init() {
 int radix_uint32_trie_add(struct Node *node, struct BinaryValue value) {
     int matched_elements_num = 0;
     struct BinaryValue value_left;
-    struct Edge *edge;
 
     struct Node *next_node = node;
     do {
@@ -32,6 +31,7 @@ int radix_uint32_trie_add(struct Node *node, struct BinaryValue value) {
     }
 
     struct Edge *sharing_edge = NULL;
+    struct Edge *edge;
     struct SinglyList *edge_list;
     uint8_t common_prefix_len = 0;
     edge_list = node->edges;
@@ -48,6 +48,7 @@ int radix_uint32_trie_add(struct Node *node, struct BinaryValue value) {
     }
 
     if (sharing_edge != NULL) {
+        struct SinglyList *edges_to_move;
         uint8_t new_edge_len = value_left.length - common_prefix_len;
         uint32_t new_edge_val = get_suffix(value_left.bits, new_edge_len);
         uint32_t temp_edge_len = sharing_edge->value.length - common_prefix_len;
@@ -58,21 +59,42 @@ int radix_uint32_trie_add(struct Node *node, struct BinaryValue value) {
 
         if (new_edge_len == 0) {
             sharing_edge->target->is_leaf = true;
-            add_edge_and_leaf(sharing_edge->target, temp_edge_val, temp_edge_len);
+            edges_to_move = sharing_edge->target->edges;
+            sharing_edge->target->edges = NULL;
+            add_edge_and_node(sharing_edge->target, temp_edge_val, temp_edge_len, edges_to_move);
         } else {
             sharing_edge->target->is_leaf = false;
-            add_edge_and_leaf(sharing_edge->target, new_edge_val, new_edge_len);
-            add_edge_and_leaf(sharing_edge->target, temp_edge_val, temp_edge_len);
+            edges_to_move = sharing_edge->target->edges;
+            sharing_edge->target->edges = NULL;
+            add_edge_and_node(sharing_edge->target, new_edge_val, new_edge_len, NULL);
+            add_edge_and_node(sharing_edge->target, temp_edge_val, temp_edge_len, edges_to_move);
         }
     } else {
-        add_edge_and_leaf(node, value_left.bits, value_left.length);
+        add_edge_and_node(node, value_left.bits, value_left.length, NULL);
     }
 
     return 0;
 }
 
-uint8_t radix_int32_get_longest_prefix(struct Node *root, uint32_t val) {
+int8_t radix_uint32_get_longest_prefix(struct Node *node, uint32_t value) {
+    uint8_t longest_prefix_length = -1;
+    int matched_elements_num = 0;
+    struct BinaryValue value_left;
+    struct BinaryValue bits_str = {
+        .bits = value,
+        .length = 32
+    };
 
+    struct Node *next_node = node;
+    do {
+        node = next_node;
+        if (node->is_leaf) {
+            longest_prefix_length = matched_elements_num;
+        }
+        next_node = step(node, &bits_str, &value_left, &matched_elements_num);
+    } while (next_node);
+    
+    return longest_prefix_length;
 }
 
 struct Node *step(struct Node *node,
@@ -106,12 +128,13 @@ struct Node *step(struct Node *node,
     return NULL;
 }
 
-void add_edge_and_leaf(struct Node *node, uint32_t bits, uint8_t len) {
+void add_edge_and_node(struct Node *node, uint32_t bits, uint8_t len, struct SinglyList *edges_list) {
     struct Edge *edge = calloc(1, sizeof(struct Edge));
     edge->value.bits = bits;
     edge->value.length = len;
     edge->target = radix_uint32_trie_init();
     edge->target->is_leaf = true;
+    edge->target->edges = edges_list;
 
     node->edges = singly_list_prepend(node->edges, edge, sizeof(struct Edge));
 }

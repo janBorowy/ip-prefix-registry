@@ -24,7 +24,7 @@ struct Node {
 
 struct Node *radix_uint32_trie_init();
 int radix_uint32_trie_add(struct Node *root, struct BinaryValue value);
-uint8_t radix_int32_get_longest_prefix(struct Node *root, uint32_t val);
+int8_t radix_uint32_get_longest_prefix(struct Node *root, uint32_t val);
 int radix_uint32_trie_delete(struct Node *root, struct BinaryValue value);
 void radix_uint32_trie_destroy(struct Node *root);
 

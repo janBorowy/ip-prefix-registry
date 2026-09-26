@@ -18,6 +18,7 @@ static MunitResult test_linked_list(const MunitParameter params[], void* data) {
 
 static MunitResult test_radix_uint32_trie(const MunitParameter params[], void* data) {
     radix_uint32_trie_add_test();
+    radix_uint32_trie_get_longest_prefix_test();
     return MUNIT_OK;
 }
 
