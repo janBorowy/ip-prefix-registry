@@ -393,6 +393,11 @@ void radix_binary_trie_delete_test() {
     munit_assert_null(right->target->edges);
 }
 
+void radix_binary_trie_destroy_test() {
+    struct Node *root = create_test_trie();
+    radix_binary_trie_destroy(root);
+}
+
 struct Node *create_test_trie() {
     struct Node *root = radix_binary_trie_init();
     radix_binary_trie_add(root, (struct BinaryString) {

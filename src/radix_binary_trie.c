@@ -205,5 +205,17 @@ void add_edge_and_node(struct Node *node, struct BinaryString str, struct Singly
 }
 
 void radix_binary_trie_destroy(struct Node *root) {
+    if (root == NULL) {
+        return;
+    }
+
+    struct SinglyList *edge_node = root->edges;
+    while (edge_node) {
+        radix_binary_trie_destroy(((struct Edge *)edge_node->data)->target);
+        edge_node = edge_node->next;
+    }
+    singly_list_destroy(root->edges);
+    free(root);
+
     return;
 }
