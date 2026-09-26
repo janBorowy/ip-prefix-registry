@@ -256,6 +256,7 @@ void radix_binary_trie_delete_test() {
     assert_edge_val(right_right, 0b01, 2);
     munit_assert_true(right_right->target->is_terminal);
 
+    radix_binary_trie_destroy(root);
 
     // Delete internal terminal node
     root = create_test_trie();
@@ -338,6 +339,8 @@ void radix_binary_trie_delete_test() {
     assert_edge_val(left_left_right, 0b10, 2);
     munit_assert_true(left_left_right->target->is_terminal);
 
+    radix_binary_trie_destroy(root);
+
     // Delete nodes directly connected to root
     root = radix_binary_trie_init();
     radix_binary_trie_add(root, (struct BinaryString) {
@@ -360,6 +363,8 @@ void radix_binary_trie_delete_test() {
     munit_assert_true(left->target->is_terminal);
     munit_assert_null(left->target->edges);
     munit_assert_null(root->edges->next);
+
+    radix_binary_trie_destroy(root);
 
     // Delete nodes directly connected to root and collapse
     root = radix_binary_trie_init();
@@ -391,6 +396,40 @@ void radix_binary_trie_delete_test() {
     assert_edge_val(right, 0b0001, 4);
     munit_assert_true(right->target->is_terminal);
     munit_assert_null(right->target->edges);
+
+    radix_binary_trie_destroy(root);
+
+    // Delete root
+    root = create_test_trie();
+    munit_assert_false(root->is_terminal);
+    radix_binary_trie_add(root, EMPTY_BINARY_STRING);
+    munit_assert_true(root->is_terminal);
+    radix_binary_trie_delete(root, EMPTY_BINARY_STRING);
+    munit_assert_false(root->is_terminal);
+
+    left = root->edges->data;
+    left_left = left->target->edges->data;
+    left_right = left->target->edges->next->data;
+    left_left_left = left_left->target->edges->data;
+    right = root->edges->next->data;
+    right_left = right->target->edges->data;
+    right_right = right->target->edges->next->data;
+    assert_edge_val(left, 0b1, 1);
+    munit_assert_false(left->target->is_terminal);
+    assert_edge_val(left_left, 0b0, 1);
+    munit_assert_true(left_left->target->is_terminal);
+    assert_edge_val(left_right, 0b1, 1);
+    munit_assert_true(left_right->target->is_terminal);
+    assert_edge_val(left_left_left, 0b10, 2);
+    munit_assert_true(left_left_left->target->is_terminal);
+    assert_edge_val(right, 0b0, 1);
+    munit_assert_false(right->target->is_terminal);
+    assert_edge_val(right_left, 0b11, 2);
+    munit_assert_true(right_left->target->is_terminal);
+    assert_edge_val(right_right, 0b01, 2);
+    munit_assert_true(right_right->target->is_terminal);
+
+    radix_binary_trie_destroy(root);
 }
 
 void radix_binary_trie_destroy_test() {

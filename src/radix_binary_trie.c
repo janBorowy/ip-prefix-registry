@@ -14,7 +14,6 @@ struct Node *radix_binary_trie_init() {
     return node;
 }
 
-// uint32_t value = ((UINT32_MAX << (32 - mask)) & base) >> (32 - mask);
 int radix_binary_trie_add(struct Node *node, struct BinaryString value) {
     int matched_elements_num = 0;
     struct BinaryString str_left;
@@ -111,6 +110,11 @@ int radix_binary_trie_delete(struct Node *node, struct BinaryString bit_str) {
     struct Edge *edge_to_parent = NULL;
     struct Edge *edge_to_deletee = NULL;
     struct Node *root = node;
+
+    if (bit_str.length == 0) {
+        node->is_terminal = false;
+        return 0;
+    }
 
     struct Edge *next_edge = step(node, &bit_str, &value_left, &matched_elements_num);
     while (next_edge) {
