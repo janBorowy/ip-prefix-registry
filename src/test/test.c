@@ -1,7 +1,7 @@
 #include "../../lib/munit/munit.h"
-#include "uint32_util_tests.h"
+#include "binary_string_tests.h"
 #include "singly_list_tests.h"
-#include "radix_uint32_trie_tests.h"
+#include "radix_binary_trie_tests.h"
 
 static MunitResult test_uint32_util(const MunitParameter params[], void* data) {
     is_prefix_of_test();
@@ -12,22 +12,22 @@ static MunitResult test_uint32_util(const MunitParameter params[], void* data) {
     return MUNIT_OK;
 }
 
-static MunitResult test_linked_list(const MunitParameter params[], void* data) {
+static MunitResult test_singly_list(const MunitParameter params[], void* data) {
     singly_list_test();
     singly_list_delete_test();
     return MUNIT_OK;
 }
 
 static MunitResult test_radix_uint32_trie(const MunitParameter params[], void* data) {
-    radix_uint32_trie_add_test();
-    radix_uint32_trie_get_longest_prefix_test();
-    radix_uint32_trie_delete_test();
+    radix_binary_trie_add_test();
+    radix_binary_trie_get_longest_prefix_test();
+    radix_binary_trie_delete_test();
     return MUNIT_OK;
 }
 
 static MunitTest test_suite_tests[] = {
     {
-        (char *) "/ip-registry/uint32_util",
+        (char *) "/ip-registry/binary_string",
         test_uint32_util,
         NULL,
         NULL,
@@ -35,8 +35,8 @@ static MunitTest test_suite_tests[] = {
         NULL
     },
     {
-        (char *) "/ip-registry/linked_list",
-        test_linked_list,
+        (char *) "/ip-registry/singly_list",
+        test_singly_list,
         NULL,
         NULL,
         MUNIT_TEST_OPTION_NONE,

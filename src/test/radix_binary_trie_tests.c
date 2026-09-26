@@ -1,48 +1,48 @@
-#include "radix_uint32_trie_tests.h"
-#include "../radix_uint32_trie.h"
+#include "radix_binary_trie_tests.h"
+#include "../radix_binary_trie.h"
 #include "../../lib/munit/munit.h"
 
 void assert_edge_val(struct Edge *edge, uint32_t value, uint8_t length);
 struct Node *create_test_trie();
 
-void radix_uint32_trie_add_test() {
+void radix_binary_trie_add_test() {
     // General test
-    struct Node *root = radix_uint32_trie_init();
-    radix_uint32_trie_add(root, (struct BinaryValue) {
+    struct Node *root = radix_binary_trie_init();
+    radix_binary_trie_add(root, (struct BinaryString) {
         .bits = 0b100,
         .length = 3
     });
 
-    radix_uint32_trie_add(root, (struct BinaryValue) {
+    radix_binary_trie_add(root, (struct BinaryString) {
         .bits = 0b001,
         .length = 3
     });
 
-    radix_uint32_trie_add(root, (struct BinaryValue) {
+    radix_binary_trie_add(root, (struct BinaryString) {
         .bits = 0b011,
         .length = 3
     });
-    radix_uint32_trie_add(root, (struct BinaryValue) {
+    radix_binary_trie_add(root, (struct BinaryString) {
         .bits = 0b011,
         .length = 3
     });
 
-    radix_uint32_trie_add(root, (struct BinaryValue) {
+    radix_binary_trie_add(root, (struct BinaryString) {
         .bits = 0b000,
         .length = 3
     });
 
-    radix_uint32_trie_add(root, (struct BinaryValue) {
+    radix_binary_trie_add(root, (struct BinaryString) {
         .bits = 0b1101,
         .length = 4
     });
 
-    radix_uint32_trie_add(root, (struct BinaryValue) {
+    radix_binary_trie_add(root, (struct BinaryString) {
         .bits = 0,
         .length = 1
     });
 
-    radix_uint32_trie_add(root, (struct BinaryValue) {
+    radix_binary_trie_add(root, (struct BinaryString) {
         .bits = 0,
         .length = 2
     });
@@ -84,9 +84,9 @@ void radix_uint32_trie_add_test() {
     munit_assert_null(right_right->target->edges);
 
     // Losing edges test - internal terminal
-    root = radix_uint32_trie_init();
+    root = radix_binary_trie_init();
 
-    radix_uint32_trie_add(root, (struct BinaryValue) {
+    radix_binary_trie_add(root, (struct BinaryString) {
         .bits = 0b1010,
         .length = 4
     });
@@ -94,7 +94,7 @@ void radix_uint32_trie_add_test() {
     left = root->edges->data;
     assert_edge_val(left, 0b1010, 4);
 
-    radix_uint32_trie_add(root, (struct BinaryValue) {
+    radix_binary_trie_add(root, (struct BinaryString) {
         .bits = 0b10,
         .length = 2
     });
@@ -104,7 +104,7 @@ void radix_uint32_trie_add_test() {
     assert_edge_val(left, 0b10, 2);
     assert_edge_val(left_left, 0b10, 2);
 
-    radix_uint32_trie_add(root, (struct BinaryValue) {
+    radix_binary_trie_add(root, (struct BinaryString) {
         .bits = 0b1,
         .length = 1
     });
@@ -120,9 +120,9 @@ void radix_uint32_trie_add_test() {
     munit_assert_true(left_left_left->target->is_terminal);
 
     // Losing edges test - new terminal node
-    root = radix_uint32_trie_init();
+    root = radix_binary_trie_init();
 
-    radix_uint32_trie_add(root, (struct BinaryValue) {
+    radix_binary_trie_add(root, (struct BinaryString) {
         .bits = 0b1010,
         .length = 4
     });
@@ -130,7 +130,7 @@ void radix_uint32_trie_add_test() {
     left = root->edges->data;
     assert_edge_val(left, 0b1010, 4);
 
-    radix_uint32_trie_add(root, (struct BinaryValue) {
+    radix_binary_trie_add(root, (struct BinaryString) {
         .bits = 0b10,
         .length = 2
     });
@@ -140,7 +140,7 @@ void radix_uint32_trie_add_test() {
     assert_edge_val(left, 0b10, 2);
     assert_edge_val(left_left, 0b10, 2);
 
-    radix_uint32_trie_add(root, (struct BinaryValue) {
+    radix_binary_trie_add(root, (struct BinaryString) {
         .bits = 0b11,
         .length = 2
     });
@@ -159,63 +159,63 @@ void radix_uint32_trie_add_test() {
     munit_assert_true(left_left_left->target->is_terminal);
 }
 
-void radix_uint32_trie_get_longest_prefix_test() {
-    struct Node *node = radix_uint32_trie_init();
+void radix_binary_trie_get_longest_prefix_test() {
+    struct Node *node = radix_binary_trie_init();
 
-    munit_assert_int8(radix_uint32_get_longest_prefix(node, 0b0), == , -1);
+    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0b0), == , -1);
 
-    radix_uint32_trie_add(node, (struct BinaryValue){
+    radix_binary_trie_add(node, (struct BinaryString){
         .bits = 0b1010,
         .length = 4
     });
-    munit_assert_int8(radix_uint32_get_longest_prefix(node, 0xA0000000), == , 4);
-    munit_assert_int8(radix_uint32_get_longest_prefix(node, 0x90000000), == , -1);
-    munit_assert_int8(radix_uint32_get_longest_prefix(node, 0x20000000), == , -1);
+    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0xA0000000), == , 4);
+    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x90000000), == , -1);
+    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x20000000), == , -1);
 
-    radix_uint32_trie_add(node, (struct BinaryValue){
+    radix_binary_trie_add(node, (struct BinaryString){
         .bits = 0b10,
         .length = 2
     });
-    munit_assert_int8(radix_uint32_get_longest_prefix(node, 0xA0000000), == , 4);
-    munit_assert_int8(radix_uint32_get_longest_prefix(node, 0x90000000), == , 2);
-    munit_assert_int8(radix_uint32_get_longest_prefix(node, 0x80000000), == , 2);
-    munit_assert_int8(radix_uint32_get_longest_prefix(node, 0x20000000), == , -1);
-    munit_assert_int8(radix_uint32_get_longest_prefix(node, 0xC0000000), == , -1);
+    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0xA0000000), == , 4);
+    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x90000000), == , 2);
+    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x80000000), == , 2);
+    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x20000000), == , -1);
+    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0xC0000000), == , -1);
 
-    radix_uint32_trie_add(node, (struct BinaryValue){
+    radix_binary_trie_add(node, (struct BinaryString){
         .bits = 0b11,
         .length = 2
     });
-    munit_assert_int8(radix_uint32_get_longest_prefix(node, 0xA0000000), == , 4);
-    munit_assert_int8(radix_uint32_get_longest_prefix(node, 0x90000000), == , 2);
-    munit_assert_int8(radix_uint32_get_longest_prefix(node, 0x80000000), == , 2);
-    munit_assert_int8(radix_uint32_get_longest_prefix(node, 0xC0000000), ==, 2);
-    munit_assert_int8(radix_uint32_get_longest_prefix(node, 0xE0000000), ==, 2);
-    munit_assert_int8(radix_uint32_get_longest_prefix(node, 0x20000000), == , -1);
-    munit_assert_int8(radix_uint32_get_longest_prefix(node, 0x00000000), == , -1);
-    munit_assert_int8(radix_uint32_get_longest_prefix(node, 0x00000001), == , -1);
+    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0xA0000000), == , 4);
+    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x90000000), == , 2);
+    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x80000000), == , 2);
+    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0xC0000000), ==, 2);
+    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0xE0000000), ==, 2);
+    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x20000000), == , -1);
+    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x00000000), == , -1);
+    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x00000001), == , -1);
 
-    radix_uint32_trie_add(node, (struct BinaryValue){
+    radix_binary_trie_add(node, (struct BinaryString){
         .bits = 0,
         .length = 0
     });
-    munit_assert_int8(radix_uint32_get_longest_prefix(node, 0b0), == , 0);
-    munit_assert_int8(radix_uint32_get_longest_prefix(node, 0xA0000000), == , 4);
-    munit_assert_int8(radix_uint32_get_longest_prefix(node, 0x90000000), == , 2);
-    munit_assert_int8(radix_uint32_get_longest_prefix(node, 0x80000000), == , 2);
-    munit_assert_int8(radix_uint32_get_longest_prefix(node, 0xC0000000), ==, 2);
-    munit_assert_int8(radix_uint32_get_longest_prefix(node, 0xE0000000), ==, 2);
-    munit_assert_int8(radix_uint32_get_longest_prefix(node, 0x20000000), == , 0);
-    munit_assert_int8(radix_uint32_get_longest_prefix(node, 0x00000000), == , 0);
-    munit_assert_int8(radix_uint32_get_longest_prefix(node, 0x00000001), == , 0);
+    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0b0), == , 0);
+    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0xA0000000), == , 4);
+    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x90000000), == , 2);
+    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x80000000), == , 2);
+    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0xC0000000), ==, 2);
+    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0xE0000000), ==, 2);
+    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x20000000), == , 0);
+    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x00000000), == , 0);
+    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x00000001), == , 0);
 }
 
-void radix_uint32_trie_delete_test() {
+void radix_binary_trie_delete_test() {
     struct Node *root;
     struct Edge *right, *right_right, *right_left, *left, *left_left, *left_left_left, *left_right, *left_left_right;
     // Delete leaf and collapse
     root = create_test_trie();
-    radix_uint32_trie_delete(root, (struct BinaryValue) {
+    radix_binary_trie_delete(root, (struct BinaryString) {
         .bits = 0b001,
         .length = 3
     });
@@ -225,11 +225,11 @@ void radix_uint32_trie_delete_test() {
     munit_assert_true(right->target->is_terminal);
     munit_assert_null(right->target->edges);
 
-    radix_uint32_trie_destroy(root);
+    radix_binary_trie_destroy(root);
 
     // Delete not exsiting node should not change trie
     root = create_test_trie();
-    radix_uint32_trie_delete(root, (struct BinaryValue) {
+    radix_binary_trie_delete(root, (struct BinaryString) {
         .bits = 0b111,
         .length = 3
     });
@@ -260,15 +260,15 @@ void radix_uint32_trie_delete_test() {
     // Delete internal terminal node
     root = create_test_trie();
     // these children should be kept after deletion
-    radix_uint32_trie_add(root, (struct BinaryValue) {
+    radix_binary_trie_add(root, (struct BinaryString) {
         .bits = 0b10100,
         .length = 5
     });
-    radix_uint32_trie_add(root, (struct BinaryValue) {
+    radix_binary_trie_add(root, (struct BinaryString) {
         .bits = 0b10101,
         .length = 5
     });
-    radix_uint32_trie_delete(root, (struct BinaryValue) {
+    radix_binary_trie_delete(root, (struct BinaryString) {
         .bits = 0b10,
         .length = 2
     });
@@ -287,15 +287,15 @@ void radix_uint32_trie_delete_test() {
     assert_edge_val(left_left_left, 0b1, 1);
     assert_edge_val(left_left_right, 0b0, 1);
 
-    radix_uint32_trie_destroy(root);
+    radix_binary_trie_destroy(root);
 
     // Delete leaf but parent is terminal, so don't collapse
     root = create_test_trie();
-    radix_uint32_trie_add(root, (struct BinaryValue) {
+    radix_binary_trie_add(root, (struct BinaryString) {
         .bits = 0b0,
         .length = 1
     });
-    radix_uint32_trie_delete(root, (struct BinaryValue) {
+    radix_binary_trie_delete(root, (struct BinaryString) {
         .bits = 0b001,
         .length = 3
     });
@@ -308,16 +308,16 @@ void radix_uint32_trie_delete_test() {
     munit_assert_true(right_right->target->is_terminal);
     munit_assert_null(right->target->edges->next);
 
-    radix_uint32_trie_destroy(root);
+    radix_binary_trie_destroy(root);
 
     // Delete internal node, whose parent of 2 other nodes
     root = create_test_trie();
 
-    radix_uint32_trie_add(root, (struct BinaryValue) {
+    radix_binary_trie_add(root, (struct BinaryString) {
         .bits = 0b1001,
         .length = 4
     });
-    radix_uint32_trie_delete(root, (struct BinaryValue) {
+    radix_binary_trie_delete(root, (struct BinaryString) {
         .bits = 0b10,
         .length = 2
     });
@@ -339,17 +339,17 @@ void radix_uint32_trie_delete_test() {
     munit_assert_true(left_left_right->target->is_terminal);
 
     // Delete nodes directly connected to root
-    root = radix_uint32_trie_init();
-    radix_uint32_trie_add(root, (struct BinaryValue) {
+    root = radix_binary_trie_init();
+    radix_binary_trie_add(root, (struct BinaryString) {
         .bits = 0b000,
         .length = 3
     });
-    radix_uint32_trie_add(root, (struct BinaryValue) {
+    radix_binary_trie_add(root, (struct BinaryString) {
         .bits = 0b100,
         .length = 3
     });
 
-    radix_uint32_trie_delete(root, (struct BinaryValue) {
+    radix_binary_trie_delete(root, (struct BinaryString) {
         .bits = 0b000,
         .length = 3
     });
@@ -362,21 +362,21 @@ void radix_uint32_trie_delete_test() {
     munit_assert_null(root->edges->next);
 
     // Delete nodes directly connected to root and collapse
-    root = radix_uint32_trie_init();
-    radix_uint32_trie_add(root, (struct BinaryValue) {
+    root = radix_binary_trie_init();
+    radix_binary_trie_add(root, (struct BinaryString) {
         .bits = 0b000,
         .length = 3
     });
-    radix_uint32_trie_add(root, (struct BinaryValue) {
+    radix_binary_trie_add(root, (struct BinaryString) {
         .bits = 0b100,
         .length = 3
     });
-    radix_uint32_trie_add(root, (struct BinaryValue) {
+    radix_binary_trie_add(root, (struct BinaryString) {
         .bits = 0b0001,
         .length = 4
     });
     
-    radix_uint32_trie_delete(root, (struct BinaryValue) {
+    radix_binary_trie_delete(root, (struct BinaryString) {
         .bits = 0b000,
         .length = 3
     });
@@ -394,24 +394,24 @@ void radix_uint32_trie_delete_test() {
 }
 
 struct Node *create_test_trie() {
-    struct Node *root = radix_uint32_trie_init();
-    radix_uint32_trie_add(root, (struct BinaryValue) {
+    struct Node *root = radix_binary_trie_init();
+    radix_binary_trie_add(root, (struct BinaryString) {
         .bits = 0b011,
         .length = 3
     });
-    radix_uint32_trie_add(root, (struct BinaryValue) {
+    radix_binary_trie_add(root, (struct BinaryString) {
         .bits = 0b001,
         .length = 3
     });
-    radix_uint32_trie_add(root, (struct BinaryValue) {
+    radix_binary_trie_add(root, (struct BinaryString) {
         .bits = 0b1010,
         .length = 4
     });
-    radix_uint32_trie_add(root, (struct BinaryValue) {
+    radix_binary_trie_add(root, (struct BinaryString) {
         .bits = 0b11,
         .length = 2
     });
-    radix_uint32_trie_add(root, (struct BinaryValue) {
+    radix_binary_trie_add(root, (struct BinaryString) {
         .bits = 0b10,
         .length = 2
     });
@@ -419,6 +419,6 @@ struct Node *create_test_trie() {
 }
 
 void assert_edge_val(struct Edge *edge, uint32_t value, uint8_t length) {
-    munit_assert_uint32(edge->value.bits, ==, value);
-    munit_assert_uint32(edge->value.length, ==, length);
+    munit_assert_uint32(edge->str.bits, ==, value);
+    munit_assert_uint32(edge->str.length, ==, length);
 }

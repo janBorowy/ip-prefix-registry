@@ -1,5 +1,5 @@
-#ifndef UINT32_UTIL_TESTS
-#define UINT32_UTIL_TESTS
+#ifndef BINARY_STRING_TESTS
+#define BINARY_STRING_TESTS
 
 void is_prefix_of_test();
 void get_prefix_test();
