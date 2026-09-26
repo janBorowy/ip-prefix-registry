@@ -9,6 +9,7 @@ set (SOURCE_FILES
     src/radix_binary_trie.c
     src/binary_string.c
     src/singly_list.c
+    src/ipv4_subnet_registry.c
 )
 
 target_sources(ip-registry-test
@@ -18,6 +19,7 @@ target_sources(ip-registry-test
     src/test/binary_string_tests.c
     src/test/singly_list_tests.c
     src/test/radix_binary_trie_tests.c
+    src/test/ipv4_subnet_registry_tests.c
     ${SOURCE_FILES})
 
 add_executable(ip-registry-demo)

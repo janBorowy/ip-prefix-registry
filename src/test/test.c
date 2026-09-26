@@ -2,6 +2,7 @@
 #include "binary_string_tests.h"
 #include "singly_list_tests.h"
 #include "radix_binary_trie_tests.h"
+#include "ipv4_subnet_registry_tests.h"
 
 static MunitResult test_binary_string(const MunitParameter params[], void* data) {
     is_prefix_of_test();
@@ -26,6 +27,11 @@ static MunitResult test_radix_binary_trie(const MunitParameter params[], void* d
     return MUNIT_OK;
 }
 
+static MunitResult test_ipv4_subnet_registry(const MunitParameter params[], void* data) {
+    ipv4_subnet_registry_test();
+    return MUNIT_OK;
+}
+
 static MunitTest test_suite_tests[] = {
     {
         (char *) "/ip-registry/binary_string",
@@ -46,6 +52,14 @@ static MunitTest test_suite_tests[] = {
     {
         (char *) "/ip-registry/radix_binary_trie",
         test_radix_binary_trie,
+        NULL,
+        NULL,
+        MUNIT_TEST_OPTION_NONE,
+        NULL
+    },
+    {
+        (char *) "/ip-registry/ipv4_subnet_registry",
+        test_ipv4_subnet_registry,
         NULL,
         NULL,
         MUNIT_TEST_OPTION_NONE,
