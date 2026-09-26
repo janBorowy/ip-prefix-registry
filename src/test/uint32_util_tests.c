@@ -48,3 +48,11 @@ void get_common_prefix_length_test() {
     munit_assert_uint32(get_common_prefix_length(0b1001, 4, 0b1001, 4), ==, 4);
 }
 
+void append_bits_test() {
+    munit_assert_uint32(append_bits(0b101, 3, 0b01, 2), ==, 0b10101);
+    munit_assert_uint32(append_bits(0b1101, 4, 0b10, 2), ==, 0b110110);
+    munit_assert_uint32(append_bits(0x1234, 16, 0xABCD, 16), ==, 0x1234ABCD);
+    munit_assert_uint32(append_bits(0, 0, 0b11, 2), ==, 0b11);
+    munit_assert_uint32(append_bits(0xABCD, 16, 0, 0), ==, 0xABCD);
+    munit_assert_uint32(append_bits(UINT32_MAX, 32, 0, 0), ==, UINT32_MAX);
+}

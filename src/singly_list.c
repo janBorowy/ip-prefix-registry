@@ -23,6 +23,31 @@ struct SinglyList *singly_list_prepend(struct SinglyList *root, void *data,
     return to_insert;
 }
 
+struct SinglyList *singly_list_delete_by_data(struct SinglyList *root, void *data_to_delete) {
+    if (root == NULL || data_to_delete == NULL) {
+        return NULL;
+    }
+
+    struct SinglyList *node = root->next;
+    struct SinglyList *prev = root;
+    if (prev->data == data_to_delete) {
+        free(prev);
+        return node;
+    }
+
+    while (node) {
+        if (node->data == data_to_delete) {
+            prev->next = node->next;
+            free(node->data);
+            free(node);
+            break;
+        }
+        prev = node;
+        node = node->next;
+    }
+    return root;
+}
+
 void singly_list_destroy(struct SinglyList *node) {
     struct SinglyList *next_node;
 

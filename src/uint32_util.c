@@ -60,6 +60,14 @@ uint8_t get_common_prefix_length(uint32_t first_value, uint8_t first_len, uint32
     return common_len;
 }
 
+uint32_t append_bits(uint32_t value, uint8_t value_len, uint32_t appendee_value, uint8_t appendee_len) {
+    assert_unused_bits_are_zero(value, value_len);
+    assert_unused_bits_are_zero(appendee_value, appendee_len);
+    assert(value_len + appendee_len <= 32);
+
+    return (value << appendee_len) | appendee_value;
+}
+
 bool get_nth_rightmost_bit(uint32_t value, uint8_t n) {
     return (value >> (n - 1)) & 1u;
 }

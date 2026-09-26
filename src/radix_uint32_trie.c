@@ -5,8 +5,10 @@
 
 #include "uint32_util.h"
 
-struct Node *step(struct Node *root, struct BinaryValue *value, struct BinaryValue *value_left, int *matched_elements_num);
+struct Edge *step(struct Node *root, struct BinaryValue *value, struct BinaryValue *value_left, int *matched_elements_num);
 void add_edge_and_node(struct Node *node, uint32_t bits, uint8_t len, struct SinglyList *edges_list);
+void delete_node(struct Edge *edge_to_deletee, struct Node *root, struct Edge *edge_to_parent);
+void collapse_node(struct Edge *edge_to_node);
 
 struct Node *radix_uint32_trie_init() {
     struct Node *node = calloc(1, sizeof(struct Node));
@@ -19,12 +21,12 @@ int radix_uint32_trie_add(struct Node *node, struct BinaryValue value) {
     int matched_elements_num = 0;
     struct BinaryValue value_left;
 
-    struct Node *next_node = node;
-    do {
-        node = next_node;
-        next_node = step(node, &value, &value_left, &matched_elements_num);
-    } while (next_node);
-
+    struct Edge *next_edge = step(node, &value, &value_left, &matched_elements_num);
+    while (next_edge) {
+        node = next_edge->target;
+        next_edge = step(node, &value, &value_left, &matched_elements_num);
+    }
+    
     if (matched_elements_num == value.length) {
         node->is_terminal = true;
         return 0;
@@ -85,19 +87,92 @@ int8_t radix_uint32_get_longest_prefix(struct Node *node, uint32_t value) {
         .length = 32
     };
 
-    struct Node *next_node = node;
-    do {
-        node = next_node;
+    if (node->is_terminal) {
+        longest_prefix_length = 0;
+    }
+
+    struct Edge *next_edge = step(node, &bits_str, &value_left, &matched_elements_num);
+    while (next_edge) {
+        node = next_edge->target;
         if (node->is_terminal) {
             longest_prefix_length = matched_elements_num;
         }
-        next_node = step(node, &bits_str, &value_left, &matched_elements_num);
-    } while (next_node);
+        next_edge = step(node, &bits_str, &value_left, &matched_elements_num);
+    };
+
+    while (next_edge) {
+        if (node->is_terminal) {
+            longest_prefix_length = matched_elements_num;
+        }
+        next_edge = step(node, &bits_str, &value_left, &matched_elements_num);
+    };
     
     return longest_prefix_length;
 }
 
-struct Node *step(struct Node *node,
+int radix_uint32_trie_delete(struct Node *node, struct BinaryValue bit_str) {
+    int matched_elements_num = 0;
+    struct BinaryValue value_left;
+    struct Edge *edge_to_parent = NULL;
+    struct Edge *edge_to_deletee = NULL;
+    struct Node *root = node;
+
+    struct Edge *next_edge = step(node, &bit_str, &value_left, &matched_elements_num);
+    while (next_edge) {
+        node = next_edge->target;
+        if (next_edge) {
+            edge_to_parent = edge_to_deletee;
+            edge_to_deletee = next_edge;
+        }
+        next_edge = step(node, &bit_str, &value_left, &matched_elements_num);
+    };
+
+    if (bit_str.length == matched_elements_num && node->is_terminal) {
+        delete_node(edge_to_deletee, root, edge_to_parent);
+    }
+    return 0;
+}
+
+void delete_node(struct Edge *edge_to_deletee, struct Node *root, struct Edge *edge_to_parent) {
+    struct Node *deletee = edge_to_deletee->target;
+    struct Node *parent;
+    if (edge_to_parent == NULL) {
+        collapse_node(edge_to_deletee);
+        if (edge_to_deletee->target == NULL) {
+            root->edges = singly_list_delete_by_data(root->edges, (void *)edge_to_deletee);
+        }
+    } else if (deletee->edges == NULL) {
+        parent = edge_to_parent->target;
+        free(deletee);
+        parent->edges = singly_list_delete_by_data(parent->edges, (void *)edge_to_deletee);
+        if (!edge_to_parent->target->is_terminal)  {
+            collapse_node(edge_to_parent);
+        }
+    } else if (deletee->edges->next != NULL) {
+        deletee->is_terminal = false;
+    } else {
+        collapse_node(edge_to_deletee);
+    }
+}
+
+void collapse_node(struct Edge *edge_to_node) {
+    struct Node *node_to_delete = edge_to_node->target;
+    if (node_to_delete->edges) {
+        struct Edge *edge_to_collapse = edge_to_node->target->edges->data;
+        edge_to_node->value.bits = append_bits(edge_to_node->value.bits, edge_to_node->value.length,
+                                        edge_to_collapse->value.bits, edge_to_collapse->value.length);
+        edge_to_node->value.length = edge_to_node->value.length + edge_to_collapse->value.length;
+        edge_to_node->target = edge_to_collapse->target;
+
+        singly_list_destroy(node_to_delete->edges);
+        free(node_to_delete);
+    } else {
+        edge_to_node->target = NULL;
+        free(node_to_delete);
+    }
+}
+
+struct Edge *step(struct Node *node,
                       struct BinaryValue *value,
                       struct BinaryValue *value_left,
                       int *matched_elements_num) {
@@ -121,8 +196,7 @@ struct Node *step(struct Node *node,
 
         if (next_edge) {
             *matched_elements_num += next_edge->value.length;
-            node = next_edge->target;
-            return node;
+            return next_edge;
         }
     }
     return NULL;
@@ -139,4 +213,6 @@ void add_edge_and_node(struct Node *node, uint32_t bits, uint8_t len, struct Sin
     node->edges = singly_list_prepend(node->edges, edge, sizeof(struct Edge));
 }
 
-
+void radix_uint32_trie_destroy(struct Node *root) {
+    return;
+}

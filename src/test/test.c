@@ -8,17 +8,20 @@ static MunitResult test_uint32_util(const MunitParameter params[], void* data) {
     get_prefix_test();
     get_suffix_test();
     get_common_prefix_length_test();
+    append_bits_test();
     return MUNIT_OK;
 }
 
 static MunitResult test_linked_list(const MunitParameter params[], void* data) {
     singly_list_test();
+    singly_list_delete_test();
     return MUNIT_OK;
 }
 
 static MunitResult test_radix_uint32_trie(const MunitParameter params[], void* data) {
     radix_uint32_trie_add_test();
     radix_uint32_trie_get_longest_prefix_test();
+    radix_uint32_trie_delete_test();
     return MUNIT_OK;
 }
 
