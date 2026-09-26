@@ -19,7 +19,7 @@ struct Edge {
 
 struct Node {
     struct SinglyList *edges;
-    bool is_leaf;
+    bool is_terminal;
 };
 
 struct Node *radix_uint32_trie_init();

@@ -10,7 +10,7 @@ void add_edge_and_node(struct Node *node, uint32_t bits, uint8_t len, struct Sin
 
 struct Node *radix_uint32_trie_init() {
     struct Node *node = calloc(1, sizeof(struct Node));
-    node->is_leaf = false;
+    node->is_terminal = false;
     return node;
 }
 
@@ -26,7 +26,7 @@ int radix_uint32_trie_add(struct Node *node, struct BinaryValue value) {
     } while (next_node);
 
     if (matched_elements_num == value.length) {
-        node->is_leaf = true;
+        node->is_terminal = true;
         return 0;
     }
 
@@ -58,12 +58,12 @@ int radix_uint32_trie_add(struct Node *node, struct BinaryValue value) {
         sharing_edge->value.length = common_prefix_len;
 
         if (new_edge_len == 0) {
-            sharing_edge->target->is_leaf = true;
+            sharing_edge->target->is_terminal = true;
             edges_to_move = sharing_edge->target->edges;
             sharing_edge->target->edges = NULL;
             add_edge_and_node(sharing_edge->target, temp_edge_val, temp_edge_len, edges_to_move);
         } else {
-            sharing_edge->target->is_leaf = false;
+            sharing_edge->target->is_terminal = false;
             edges_to_move = sharing_edge->target->edges;
             sharing_edge->target->edges = NULL;
             add_edge_and_node(sharing_edge->target, new_edge_val, new_edge_len, NULL);
@@ -88,7 +88,7 @@ int8_t radix_uint32_get_longest_prefix(struct Node *node, uint32_t value) {
     struct Node *next_node = node;
     do {
         node = next_node;
-        if (node->is_leaf) {
+        if (node->is_terminal) {
             longest_prefix_length = matched_elements_num;
         }
         next_node = step(node, &bits_str, &value_left, &matched_elements_num);
@@ -133,7 +133,7 @@ void add_edge_and_node(struct Node *node, uint32_t bits, uint8_t len, struct Sin
     edge->value.bits = bits;
     edge->value.length = len;
     edge->target = radix_uint32_trie_init();
-    edge->target->is_leaf = true;
+    edge->target->is_terminal = true;
     edge->target->edges = edges_list;
 
     node->edges = singly_list_prepend(node->edges, edge, sizeof(struct Edge));

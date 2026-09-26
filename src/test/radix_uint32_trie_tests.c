@@ -46,7 +46,7 @@ void radix_uint32_trie_add_test() {
         .length = 2
     });
 
-    munit_assert_false(root->is_leaf);
+    munit_assert_false(root->is_terminal);
 
     struct Edge *left = root->edges->data;
     struct Edge *right = root->edges->next->data;
@@ -114,9 +114,9 @@ void radix_uint32_trie_add_test() {
     assert_edge_val(left, 0b1, 1);
     assert_edge_val(left_left, 0b0, 1);
     assert_edge_val(left_left_left, 0b10, 2);
-    munit_assert_true(left->target->is_leaf);
-    munit_assert_true(left_left->target->is_leaf);
-    munit_assert_true(left_left_left->target->is_leaf);
+    munit_assert_true(left->target->is_terminal);
+    munit_assert_true(left_left->target->is_terminal);
+    munit_assert_true(left_left_left->target->is_terminal);
 
     // Losing edges test - new terminal node
     root = radix_uint32_trie_init();
@@ -152,10 +152,10 @@ void radix_uint32_trie_add_test() {
     assert_edge_val(left_left, 0b0, 1);
     assert_edge_val(left_right, 0b1, 1);
     assert_edge_val(left_left_left, 0b10, 2);
-    munit_assert_false(left->target->is_leaf);
-    munit_assert_true(left_left->target->is_leaf);
-    munit_assert_true(left_right->target->is_leaf);
-    munit_assert_true(left_left_left->target->is_leaf);
+    munit_assert_false(left->target->is_terminal);
+    munit_assert_true(left_left->target->is_terminal);
+    munit_assert_true(left_right->target->is_terminal);
+    munit_assert_true(left_left_left->target->is_terminal);
 }
 
 void radix_uint32_trie_get_longest_prefix_test() {
