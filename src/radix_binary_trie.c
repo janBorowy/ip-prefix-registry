@@ -133,6 +133,22 @@ int radix_binary_trie_delete(struct Node *node, struct BinaryString bit_str) {
     return 0;
 }
 
+void radix_binary_trie_destroy(struct Node *root) {
+    if (root == NULL) {
+        return;
+    }
+
+    struct SinglyList *edge_node = root->edges;
+    while (edge_node) {
+        radix_binary_trie_destroy(((struct Edge *)edge_node->data)->target);
+        edge_node = edge_node->next;
+    }
+    singly_list_destroy(root->edges);
+    free(root);
+
+    return;
+}
+
 void delete_node(struct Edge *edge_to_deletee, struct Node *root, struct Edge *edge_to_parent) {
     struct Node *deletee = edge_to_deletee->target;
     struct Node *parent;
@@ -212,20 +228,4 @@ void add_edge_and_node(
     edge->target->edges = edges_list;
 
     node->edges = singly_list_prepend(node->edges, edge, sizeof(struct Edge));
-}
-
-void radix_binary_trie_destroy(struct Node *root) {
-    if (root == NULL) {
-        return;
-    }
-
-    struct SinglyList *edge_node = root->edges;
-    while (edge_node) {
-        radix_binary_trie_destroy(((struct Edge *)edge_node->data)->target);
-        edge_node = edge_node->next;
-    }
-    singly_list_destroy(root->edges);
-    free(root);
-
-    return;
 }
