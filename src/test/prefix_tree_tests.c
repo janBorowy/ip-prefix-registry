@@ -27,9 +27,12 @@ static void assert_checks(
 }
 
 void prefix_tree_test() {
-    // Add a subnet and check
-    add(ipv4_str_to_int("10.20.0.0"), 16);
-    add(ipv4_str_to_int("32.64.128.0"), 20);
+
+    assert_equal(add(ipv4_str_to_int("10.20.0.0"), -1), -1);
+    assert_equal(add(ipv4_str_to_int("10.20.0.0"), 33), -1);
+    
+    assert_equal(add(ipv4_str_to_int("10.20.0.0"), 16), 0);
+    assert_equal(add(ipv4_str_to_int("32.64.128.0"), 20), 0);
 
     for (size_t i = ipv4_str_to_int("10.20.0.0"); i < ipv4_str_to_int("10.21.0.0"); i++) {
         assert_equal(check(i), 16);

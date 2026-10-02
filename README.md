@@ -7,7 +7,7 @@ Space complexity is O(N) for N registered prefixes.
 
 ## Building and running tests
 ```
-git clone --recurse-submodules https://github.com/janBorowy/ip-prefix-registry
+git clone https://github.com/janBorowy/ip-prefix-registry
 cd ip-prefix-registry
 mkdir build
 cd build
