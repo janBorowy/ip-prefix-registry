@@ -14,10 +14,12 @@ cd build
 cmake -S .. -B .
 cmake --build .
 ./ip-registry-test
-./ip-registry-demo
 ```
+
+## Usage
+
+Use prefix_tree.h header file to use implementation.
 
 ## Tests
 
-File main.c contains general test for usage of ipv4 subnet registry.
-Tests specific to binary radix trie are in `sec/test` directory.
+Tests are in `sec/test` directory.
