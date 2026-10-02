@@ -14,10 +14,10 @@ set (SOURCE_FILES
 
 target_sources(ip-registry-test
     PRIVATE
-    lib/munit/munit.c
     src/test/test.c
     src/test/binary_string_tests.c
     src/test/singly_list_tests.c
     src/test/radix_binary_trie_tests.c
     src/test/prefix_tree_tests.c
+    src/test/assertions.c
     ${SOURCE_FILES})

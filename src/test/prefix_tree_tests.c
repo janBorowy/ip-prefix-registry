@@ -1,6 +1,6 @@
 #include "prefix_tree_tests.h"
 #include "../prefix_tree.h"
-#include "../../lib/munit/munit.h"
+#include "assertions.h"
 
 #include <stdio.h>
 #include <stddef.h>
@@ -22,7 +22,7 @@ static void assert_checks(
     size_t check_count
 ) {
     for (size_t i = 0; i < check_count; i++) {
-        munit_assert_char(check(ipv4_str_to_int(checks[i].ip)), ==, checks[i].expected_mask);
+        assert_equal(check(ipv4_str_to_int(checks[i].ip)), checks[i].expected_mask);
     }
 }
 
@@ -32,62 +32,62 @@ void prefix_tree_test() {
     add(ipv4_str_to_int("32.64.128.0"), 20);
 
     for (size_t i = ipv4_str_to_int("10.20.0.0"); i < ipv4_str_to_int("10.21.0.0"); i++) {
-        munit_assert_int(check(i), ==, 16);
+        assert_equal(check(i), 16);
     }
     for (size_t i = ipv4_str_to_int("32.64.128.0"); i < ipv4_str_to_int("32.64.144.0"); i++) {
-        munit_assert_int(check(i), ==, 20);
+        assert_equal(check(i), 20);
     }
 
-    munit_assert_int(check(ipv4_str_to_int("10.19.255.255")), ==, -1);
-    munit_assert_int(check(ipv4_str_to_int("10.21.0.0")), ==, -1);
-    munit_assert_int(check(ipv4_str_to_int("32.64.127.255")), ==, -1);
-    munit_assert_int(check(ipv4_str_to_int("32.64.144.0")), ==, -1);
+    assert_equal(check(ipv4_str_to_int("10.19.255.255")), -1);
+    assert_equal(check(ipv4_str_to_int("10.21.0.0")), -1);
+    assert_equal(check(ipv4_str_to_int("32.64.127.255")), -1);
+    assert_equal(check(ipv4_str_to_int("32.64.144.0")), -1);
 
     add(ipv4_str_to_int("0.0.0.0"), 0);
 
     for (size_t i = ipv4_str_to_int("10.20.0.0"); i < ipv4_str_to_int("10.21.0.0"); i++) {
-        munit_assert_int(check(i), ==, 16);
+        assert_equal(check(i), 16);
     }
     for (size_t i = ipv4_str_to_int("32.64.128.0"); i < ipv4_str_to_int("32.64.144.0"); i++) {
-        munit_assert_int(check(i), ==, 20);
+        assert_equal(check(i), 20);
     }
 
-    munit_assert_int(check(ipv4_str_to_int("10.19.255.255")), ==, 0);
-    munit_assert_int(check(ipv4_str_to_int("10.21.0.0")), ==, 0);
-    munit_assert_int(check(ipv4_str_to_int("32.64.127.255")), ==, 0);
-    munit_assert_int(check(ipv4_str_to_int("32.64.144.0")), ==, 0);
+    assert_equal(check(ipv4_str_to_int("10.19.255.255")), 0);
+    assert_equal(check(ipv4_str_to_int("10.21.0.0")), 0);
+    assert_equal(check(ipv4_str_to_int("32.64.127.255")), 0);
+    assert_equal(check(ipv4_str_to_int("32.64.144.0")), 0);
 
     del(ipv4_str_to_int("10.20.0.0"), 16);
     for (size_t i = ipv4_str_to_int("10.20.0.0"); i < ipv4_str_to_int("10.21.0.0"); i++) {
-        munit_assert_int(check(i), ==, 0);
+        assert_equal(check(i), 0);
     }
     for (size_t i = ipv4_str_to_int("32.64.128.0"); i < ipv4_str_to_int("32.64.144.0"); i++) {
-        munit_assert_int(check(i), ==, 20);
+        assert_equal(check(i), 20);
     }
 
     del(ipv4_str_to_int("0.0.0.0"), 0);
     for (size_t i = ipv4_str_to_int("10.20.0.0"); i < ipv4_str_to_int("10.21.0.0"); i++) {
-        munit_assert_int(check(i), ==, -1);
+        assert_equal(check(i), -1);
     }
     for (size_t i = ipv4_str_to_int("32.64.128.0"); i < ipv4_str_to_int("32.64.144.0"); i++) {
-        munit_assert_int(check(i), ==, 20);
+        assert_equal(check(i), 20);
     }
-    munit_assert_int(check(ipv4_str_to_int("10.19.255.255")), ==, -1);
-    munit_assert_int(check(ipv4_str_to_int("10.21.0.0")), ==, -1);
-    munit_assert_int(check(ipv4_str_to_int("32.64.127.255")), ==, -1);
-    munit_assert_int(check(ipv4_str_to_int("32.64.144.0")), ==, -1);
+    assert_equal(check(ipv4_str_to_int("10.19.255.255")), -1);
+    assert_equal(check(ipv4_str_to_int("10.21.0.0")), -1);
+    assert_equal(check(ipv4_str_to_int("32.64.127.255")), -1);
+    assert_equal(check(ipv4_str_to_int("32.64.144.0")), -1);
 
     del(ipv4_str_to_int("32.64.128.0"), 20);
     for (size_t i = ipv4_str_to_int("10.20.0.0"); i < ipv4_str_to_int("10.21.0.0"); i++) {
-        munit_assert_int(check(i), ==, -1);
+        assert_equal(check(i), -1);
     }
     for (size_t i = ipv4_str_to_int("32.64.128.0"); i < ipv4_str_to_int("32.64.144.0"); i++) {
-        munit_assert_int(check(i), ==, -1);
+        assert_equal(check(i), -1);
     }
-    munit_assert_int(check(ipv4_str_to_int("10.19.255.255")), ==, -1);
-    munit_assert_int(check(ipv4_str_to_int("10.21.0.0")), ==, -1);
-    munit_assert_int(check(ipv4_str_to_int("32.64.127.255")), ==, -1);
-    munit_assert_int(check(ipv4_str_to_int("32.64.144.0")), ==, -1);
+    assert_equal(check(ipv4_str_to_int("10.19.255.255")), -1);
+    assert_equal(check(ipv4_str_to_int("10.21.0.0")), -1);
+    assert_equal(check(ipv4_str_to_int("32.64.127.255")), -1);
+    assert_equal(check(ipv4_str_to_int("32.64.144.0")), -1);
 }
 
 void prefix_tree_complex_test() {

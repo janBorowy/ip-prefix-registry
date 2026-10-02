@@ -1,6 +1,6 @@
 #include "radix_binary_trie_tests.h"
 #include "../radix_binary_trie.h"
-#include "../../lib/munit/munit.h"
+#include "assertions.h"
 
 void assert_edge_val(struct Edge *edge, uint32_t value, uint8_t length);
 struct Node *create_test_trie();
@@ -47,7 +47,7 @@ void radix_binary_trie_add_test() {
         .length = 2
     });
 
-    munit_assert_false(root->is_terminal);
+    assert_false(root->is_terminal);
 
     struct Edge *left = root->edges->data;
     struct Edge *right = root->edges->next->data;
@@ -61,7 +61,7 @@ void radix_binary_trie_add_test() {
 
     assert_edge_val(left_left, 0b0, 1);
     assert_edge_val(left_right, 0b11, 2);
-    munit_assert_null(left_right->target->edges);
+    assert_null(left_right->target->edges);
 
     left = root->edges->data;
     right = root->edges->next->data;
@@ -72,16 +72,16 @@ void radix_binary_trie_add_test() {
 
     assert_edge_val(left_left_left, 0b1, 1);
     assert_edge_val(left_left_right, 0b0, 1);
-    munit_assert_null(left_left_left->target->edges);
-    munit_assert_null(left_left_right->target->edges);
+    assert_null(left_left_left->target->edges);
+    assert_null(left_left_right->target->edges);
 
     struct Edge *right_left = right->target->edges->data;
     struct Edge *right_right = right->target->edges->next->data;
 
     assert_edge_val(right_left, 0b00, 2);
     assert_edge_val(right_right, 0b101, 3);
-    munit_assert_null(right_left->target->edges);
-    munit_assert_null(right_right->target->edges);
+    assert_null(right_left->target->edges);
+    assert_null(right_right->target->edges);
 
     radix_binary_trie_destroy(root);
     // Losing edges test - internal terminal
@@ -116,9 +116,9 @@ void radix_binary_trie_add_test() {
     assert_edge_val(left, 0b1, 1);
     assert_edge_val(left_left, 0b0, 1);
     assert_edge_val(left_left_left, 0b10, 2);
-    munit_assert_true(left->target->is_terminal);
-    munit_assert_true(left_left->target->is_terminal);
-    munit_assert_true(left_left_left->target->is_terminal);
+    assert_true(left->target->is_terminal);
+    assert_true(left_left->target->is_terminal);
+    assert_true(left_left_left->target->is_terminal);
 
     radix_binary_trie_destroy(root);
     // Losing edges test - new terminal node
@@ -155,10 +155,10 @@ void radix_binary_trie_add_test() {
     assert_edge_val(left_left, 0b0, 1);
     assert_edge_val(left_right, 0b1, 1);
     assert_edge_val(left_left_left, 0b10, 2);
-    munit_assert_false(left->target->is_terminal);
-    munit_assert_true(left_left->target->is_terminal);
-    munit_assert_true(left_right->target->is_terminal);
-    munit_assert_true(left_left_left->target->is_terminal);
+    assert_false(left->target->is_terminal);
+    assert_true(left_left->target->is_terminal);
+    assert_true(left_right->target->is_terminal);
+    assert_true(left_left_left->target->is_terminal);
 
     radix_binary_trie_destroy(root);
 }
@@ -166,52 +166,52 @@ void radix_binary_trie_add_test() {
 void radix_binary_trie_get_longest_prefix_test() {
     struct Node *node = radix_binary_trie_init();
 
-    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0b0), == , -1);
+    assert_equal(radix_binary_trie_get_longest_prefix(node, 0b0), -1);
 
     radix_binary_trie_add(node, (struct BinaryString){
         .bits = 0b1010,
         .length = 4
     });
-    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0xA0000000), == , 4);
-    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x90000000), == , -1);
-    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x20000000), == , -1);
+    assert_equal(radix_binary_trie_get_longest_prefix(node, 0xA0000000), 4);
+    assert_equal(radix_binary_trie_get_longest_prefix(node, 0x90000000), -1);
+    assert_equal(radix_binary_trie_get_longest_prefix(node, 0x20000000), -1);
 
     radix_binary_trie_add(node, (struct BinaryString){
         .bits = 0b10,
         .length = 2
     });
-    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0xA0000000), == , 4);
-    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x90000000), == , 2);
-    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x80000000), == , 2);
-    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x20000000), == , -1);
-    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0xC0000000), == , -1);
+    assert_equal(radix_binary_trie_get_longest_prefix(node, 0xA0000000), 4);
+    assert_equal(radix_binary_trie_get_longest_prefix(node, 0x90000000), 2);
+    assert_equal(radix_binary_trie_get_longest_prefix(node, 0x80000000), 2);
+    assert_equal(radix_binary_trie_get_longest_prefix(node, 0x20000000), -1);
+    assert_equal(radix_binary_trie_get_longest_prefix(node, 0xC0000000), -1);
 
     radix_binary_trie_add(node, (struct BinaryString){
         .bits = 0b11,
         .length = 2
     });
-    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0xA0000000), == , 4);
-    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x90000000), == , 2);
-    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x80000000), == , 2);
-    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0xC0000000), ==, 2);
-    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0xE0000000), ==, 2);
-    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x20000000), == , -1);
-    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x00000000), == , -1);
-    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x00000001), == , -1);
+    assert_equal(radix_binary_trie_get_longest_prefix(node, 0xA0000000), 4);
+    assert_equal(radix_binary_trie_get_longest_prefix(node, 0x90000000), 2);
+    assert_equal(radix_binary_trie_get_longest_prefix(node, 0x80000000), 2);
+    assert_equal(radix_binary_trie_get_longest_prefix(node, 0xC0000000), 2);
+    assert_equal(radix_binary_trie_get_longest_prefix(node, 0xE0000000), 2);
+    assert_equal(radix_binary_trie_get_longest_prefix(node, 0x20000000), -1);
+    assert_equal(radix_binary_trie_get_longest_prefix(node, 0x00000000), -1);
+    assert_equal(radix_binary_trie_get_longest_prefix(node, 0x00000001), -1);
 
     radix_binary_trie_add(node, (struct BinaryString){
         .bits = 0,
         .length = 0
     });
-    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0b0), == , 0);
-    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0xA0000000), == , 4);
-    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x90000000), == , 2);
-    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x80000000), == , 2);
-    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0xC0000000), ==, 2);
-    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0xE0000000), ==, 2);
-    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x20000000), == , 0);
-    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x00000000), == , 0);
-    munit_assert_int8(radix_binary_trie_get_longest_prefix(node, 0x00000001), == , 0);
+    assert_equal(radix_binary_trie_get_longest_prefix(node, 0b0), 0);
+    assert_equal(radix_binary_trie_get_longest_prefix(node, 0xA0000000), 4);
+    assert_equal(radix_binary_trie_get_longest_prefix(node, 0x90000000), 2);
+    assert_equal(radix_binary_trie_get_longest_prefix(node, 0x80000000), 2);
+    assert_equal(radix_binary_trie_get_longest_prefix(node, 0xC0000000), 2);
+    assert_equal(radix_binary_trie_get_longest_prefix(node, 0xE0000000), 2);
+    assert_equal(radix_binary_trie_get_longest_prefix(node, 0x20000000), 0);
+    assert_equal(radix_binary_trie_get_longest_prefix(node, 0x00000000), 0);
+    assert_equal(radix_binary_trie_get_longest_prefix(node, 0x00000001), 0);
 
     radix_binary_trie_destroy(node);
 }
@@ -228,8 +228,8 @@ void radix_binary_trie_delete_test() {
 
     right = root->edges->next->data;
     assert_edge_val(right, 0b011, 3);
-    munit_assert_true(right->target->is_terminal);
-    munit_assert_null(right->target->edges);
+    assert_true(right->target->is_terminal);
+    assert_null(right->target->edges);
 
     radix_binary_trie_destroy(root);
 
@@ -248,19 +248,19 @@ void radix_binary_trie_delete_test() {
     right_left = right->target->edges->data;
     right_right = right->target->edges->next->data;
     assert_edge_val(left, 0b1, 1);
-    munit_assert_false(left->target->is_terminal);
+    assert_false(left->target->is_terminal);
     assert_edge_val(left_left, 0b0, 1);
-    munit_assert_true(left_left->target->is_terminal);
+    assert_true(left_left->target->is_terminal);
     assert_edge_val(left_right, 0b1, 1);
-    munit_assert_true(left_right->target->is_terminal);
+    assert_true(left_right->target->is_terminal);
     assert_edge_val(left_left_left, 0b10, 2);
-    munit_assert_true(left_left_left->target->is_terminal);
+    assert_true(left_left_left->target->is_terminal);
     assert_edge_val(right, 0b0, 1);
-    munit_assert_false(right->target->is_terminal);
+    assert_false(right->target->is_terminal);
     assert_edge_val(right_left, 0b11, 2);
-    munit_assert_true(right_left->target->is_terminal);
+    assert_true(right_left->target->is_terminal);
     assert_edge_val(right_right, 0b01, 2);
-    munit_assert_true(right_right->target->is_terminal);
+    assert_true(right_right->target->is_terminal);
 
     radix_binary_trie_destroy(root);
 
@@ -286,11 +286,11 @@ void radix_binary_trie_delete_test() {
     left_left_left = left_left->target->edges->data;
     left_left_right = left_left->target->edges->next->data;
     assert_edge_val(left, 0b1, 1);
-    munit_assert_false(left->target->is_terminal);
+    assert_false(left->target->is_terminal);
     assert_edge_val(left_left, 0b010, 3);
-    munit_assert_true(left_left->target->is_terminal);
+    assert_true(left_left->target->is_terminal);
     assert_edge_val(left_right, 0b1, 1);
-    munit_assert_true(left_right->target->is_terminal);
+    assert_true(left_right->target->is_terminal);
     assert_edge_val(left_left_left, 0b1, 1);
     assert_edge_val(left_left_right, 0b0, 1);
 
@@ -310,10 +310,10 @@ void radix_binary_trie_delete_test() {
     right = root->edges->next->data;
     right_right = right->target->edges->data;
     assert_edge_val(right, 0b0, 1);
-    munit_assert_true(right->target->is_terminal);
+    assert_true(right->target->is_terminal);
     assert_edge_val(right_right, 0b11, 2);
-    munit_assert_true(right_right->target->is_terminal);
-    munit_assert_null(right->target->edges->next);
+    assert_true(right_right->target->is_terminal);
+    assert_null(right->target->edges->next);
 
     radix_binary_trie_destroy(root);
 
@@ -335,15 +335,15 @@ void radix_binary_trie_delete_test() {
     left_left_left = left_left->target->edges->data;
     left_left_right = left_left->target->edges->next->data;
     assert_edge_val(left, 0b1, 1);
-    munit_assert_false(left->target->is_terminal);
+    assert_false(left->target->is_terminal);
     assert_edge_val(left_left, 0b0, 1);
-    munit_assert_false(left_left->target->is_terminal);
+    assert_false(left_left->target->is_terminal);
     assert_edge_val(left_right, 0b1, 1);
-    munit_assert_true(left_right->target->is_terminal);
+    assert_true(left_right->target->is_terminal);
     assert_edge_val(left_left_left, 0b01, 2);
-    munit_assert_true(left_left_left->target->is_terminal);
+    assert_true(left_left_left->target->is_terminal);
     assert_edge_val(left_left_right, 0b10, 2);
-    munit_assert_true(left_left_right->target->is_terminal);
+    assert_true(left_left_right->target->is_terminal);
 
     radix_binary_trie_destroy(root);
 
@@ -366,9 +366,9 @@ void radix_binary_trie_delete_test() {
     left = root->edges->data;
 
     assert_edge_val(left, 0b100, 3);
-    munit_assert_true(left->target->is_terminal);
-    munit_assert_null(left->target->edges);
-    munit_assert_null(root->edges->next);
+    assert_true(left->target->is_terminal);
+    assert_null(left->target->edges);
+    assert_null(root->edges->next);
 
     radix_binary_trie_destroy(root);
 
@@ -396,22 +396,22 @@ void radix_binary_trie_delete_test() {
     right = root->edges->next->data;
 
     assert_edge_val(left, 0b100, 3);
-    munit_assert_true(left->target->is_terminal);
-    munit_assert_null(left->target->edges);
+    assert_true(left->target->is_terminal);
+    assert_null(left->target->edges);
 
     assert_edge_val(right, 0b0001, 4);
-    munit_assert_true(right->target->is_terminal);
-    munit_assert_null(right->target->edges);
+    assert_true(right->target->is_terminal);
+    assert_null(right->target->edges);
 
     radix_binary_trie_destroy(root);
 
     // Delete root
     root = create_test_trie();
-    munit_assert_false(root->is_terminal);
+    assert_false(root->is_terminal);
     radix_binary_trie_add(root, EMPTY_BINARY_STRING);
-    munit_assert_true(root->is_terminal);
+    assert_true(root->is_terminal);
     radix_binary_trie_delete(root, EMPTY_BINARY_STRING);
-    munit_assert_false(root->is_terminal);
+    assert_false(root->is_terminal);
 
     left = root->edges->data;
     left_left = left->target->edges->data;
@@ -421,19 +421,19 @@ void radix_binary_trie_delete_test() {
     right_left = right->target->edges->data;
     right_right = right->target->edges->next->data;
     assert_edge_val(left, 0b1, 1);
-    munit_assert_false(left->target->is_terminal);
+    assert_false(left->target->is_terminal);
     assert_edge_val(left_left, 0b0, 1);
-    munit_assert_true(left_left->target->is_terminal);
+    assert_true(left_left->target->is_terminal);
     assert_edge_val(left_right, 0b1, 1);
-    munit_assert_true(left_right->target->is_terminal);
+    assert_true(left_right->target->is_terminal);
     assert_edge_val(left_left_left, 0b10, 2);
-    munit_assert_true(left_left_left->target->is_terminal);
+    assert_true(left_left_left->target->is_terminal);
     assert_edge_val(right, 0b0, 1);
-    munit_assert_false(right->target->is_terminal);
+    assert_false(right->target->is_terminal);
     assert_edge_val(right_left, 0b11, 2);
-    munit_assert_true(right_left->target->is_terminal);
+    assert_true(right_left->target->is_terminal);
     assert_edge_val(right_right, 0b01, 2);
-    munit_assert_true(right_right->target->is_terminal);
+    assert_true(right_right->target->is_terminal);
 
     radix_binary_trie_destroy(root);
 
@@ -462,12 +462,12 @@ void radix_binary_trie_delete_test() {
     left_right = left->target->edges->next->data;
 
     assert_edge_val(left, 0b0, 1);
-    munit_assert_false(left->target->is_terminal);
-    munit_assert_null(root->edges->next);
+    assert_false(left->target->is_terminal);
+    assert_null(root->edges->next);
     assert_edge_val(left_left, 0b0, 1);
-    munit_assert_true(left_left->target->is_terminal);
+    assert_true(left_left->target->is_terminal);
     assert_edge_val(left_right, 0b1, 1);
-    munit_assert_true(left_right->target->is_terminal);
+    assert_true(left_right->target->is_terminal);
 
     radix_binary_trie_destroy(root);
 }
@@ -503,6 +503,6 @@ struct Node *create_test_trie() {
 }
 
 void assert_edge_val(struct Edge *edge, uint32_t value, uint8_t length) {
-    munit_assert_uint32(edge->str.bits, ==, value);
-    munit_assert_uint32(edge->str.length, ==, length);
+    assert_equal(edge->str.bits, value);
+    assert_equal(edge->str.length, length);
 }

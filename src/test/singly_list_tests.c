@@ -1,6 +1,6 @@
 #include "singly_list_tests.h"
 #include "../singly_list.h"
-#include "../../lib/munit/munit.h"
+#include "assertions.h"
 
 void singly_list_test() {
     char data[] = "Hello";
@@ -12,7 +12,7 @@ void singly_list_test() {
     int i = 0;
     struct SinglyList *node = root;
     while(node) {
-        munit_assert_char(*((char *)node->data), ==, data[i]);
+        assert_equal(*((char *)node->data), data[i]);
         node = node->next;
         i++;
     }
@@ -31,8 +31,8 @@ void singly_list_delete_test() {
     root = singly_list_delete_by_data(root, root->next->data);
     root = singly_list_delete_by_data(root, root->next->next->data);
 
-    munit_assert_char(*(char *)(root->data), ==, 'e');
-    munit_assert_char(*(char *)(root->next->data), ==, 'l');
+    assert_equal(*(char *)(root->data), 'e');
+    assert_equal(*(char *)(root->next->data), 'l');
 
     singly_list_destroy(root);
 }
