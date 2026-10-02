@@ -33,4 +33,6 @@ void singly_list_delete_test() {
 
     munit_assert_char(*(char *)(root->data), ==, 'e');
     munit_assert_char(*(char *)(root->next->data), ==, 'l');
+
+    singly_list_destroy(root);
 }

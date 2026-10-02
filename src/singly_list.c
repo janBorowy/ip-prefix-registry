@@ -31,6 +31,7 @@ struct SinglyList *singly_list_delete_by_data(struct SinglyList *root, void *dat
     struct SinglyList *node = root->next;
     struct SinglyList *prev = root;
     if (prev->data == data_to_delete) {
+        free(prev->data);
         free(prev);
         return node;
     }

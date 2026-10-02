@@ -153,15 +153,19 @@ void delete_node(struct Edge *edge_to_deletee, struct Node *root, struct Edge *e
     struct Node *deletee = edge_to_deletee->target;
     struct Node *parent;
     if (edge_to_parent == NULL) {
-        collapse_node(edge_to_deletee);
-        if (edge_to_deletee->target == NULL) {
-            root->edges = singly_list_delete_by_data(root->edges, (void *)edge_to_deletee);
+        if (deletee->edges && deletee->edges->next != NULL) {
+            deletee->is_terminal = false;
+        } else {
+            collapse_node(edge_to_deletee);
+            if (edge_to_deletee->target == NULL) {
+                root->edges = singly_list_delete_by_data(root->edges, (void *)edge_to_deletee);
+            }
         }
     } else if (deletee->edges == NULL) {
         parent = edge_to_parent->target;
         free(deletee);
         parent->edges = singly_list_delete_by_data(parent->edges, (void *)edge_to_deletee);
-        if (!edge_to_parent->target->is_terminal)  {
+        if (!parent->is_terminal)  {
             collapse_node(edge_to_parent);
         }
     } else if (deletee->edges->next != NULL) {
@@ -174,6 +178,8 @@ void delete_node(struct Edge *edge_to_deletee, struct Node *root, struct Edge *e
 void collapse_node(struct Edge *edge_to_node) {
     struct Node *node_to_delete = edge_to_node->target;
     if (node_to_delete->edges) {
+        assert(node_to_delete->edges->next == NULL);
+
         struct Edge *edge_to_collapse = edge_to_node->target->edges->data;
         edge_to_node->str = append_bits(edge_to_node->str, edge_to_collapse->str);
         edge_to_node->target = edge_to_collapse->target;
@@ -221,11 +227,12 @@ void add_edge_and_node(
     struct SinglyList *edges_list,
     bool is_terminal
 ) {
-    struct Edge *edge = calloc(1, sizeof(struct Edge));
-    edge->str = str;
-    edge->target = radix_binary_trie_init();
-    edge->target->is_terminal = is_terminal;
-    edge->target->edges = edges_list;
+    struct Edge edge = {
+        .str = str,
+        .target = radix_binary_trie_init()
+    };
+    edge.target->is_terminal = is_terminal;
+    edge.target->edges = edges_list;
 
-    node->edges = singly_list_prepend(node->edges, edge, sizeof(struct Edge));
+    node->edges = singly_list_prepend(node->edges, &edge, sizeof(struct Edge));
 }

@@ -21,10 +21,3 @@ target_sources(ip-registry-test
     src/test/radix_binary_trie_tests.c
     src/test/ipv4_subnet_registry_tests.c
     ${SOURCE_FILES})
-
-add_executable(ip-registry-demo)
-
-target_sources(ip-registry-demo
-    PRIVATE
-    src/main.c
-    ${SOURCE_FILES})
