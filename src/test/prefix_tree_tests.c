@@ -1,7 +1,8 @@
-#include "ipv4_subnet_registry_tests.h"
-#include "../ipv4_subnet_registry.h"
+#include "prefix_tree_tests.h"
+#include "../prefix_tree.h"
 #include "../../lib/munit/munit.h"
 
+#include <stdio.h>
 #include <stddef.h>
 
 uint32_t ipv4_str_to_int(const char *str);
@@ -16,85 +17,80 @@ struct Ipv4SubnetCheck {
     int expected_mask;
 };
 
-static void assert_ipv4_subnet_registry_checks(
-    struct Ipv4SubnetRegistry *reg,
+static void assert_checks(
     const struct Ipv4SubnetCheck checks[],
     size_t check_count
 ) {
     for (size_t i = 0; i < check_count; i++) {
-        munit_assert_char(ipv4_subnet_registry_check(reg, ipv4_str_to_int(checks[i].ip)), ==, checks[i].expected_mask);
+        munit_assert_char(check(ipv4_str_to_int(checks[i].ip)), ==, checks[i].expected_mask);
     }
 }
 
-void ipv4_subnet_registry_test() {
+void prefix_tree_test() {
     // Add a subnet and check
-    struct Ipv4SubnetRegistry *reg = ipv4_subnet_registry_init();
-    ipv4_subnet_registry_add(reg, ipv4_str_to_int("10.20.0.0"), 16);
-    ipv4_subnet_registry_add(reg, ipv4_str_to_int("32.64.128.0"), 20);
+    add(ipv4_str_to_int("10.20.0.0"), 16);
+    add(ipv4_str_to_int("32.64.128.0"), 20);
 
     for (size_t i = ipv4_str_to_int("10.20.0.0"); i < ipv4_str_to_int("10.21.0.0"); i++) {
-        munit_assert_int(ipv4_subnet_registry_check(reg, i), ==, 16);
+        munit_assert_int(check(i), ==, 16);
     }
     for (size_t i = ipv4_str_to_int("32.64.128.0"); i < ipv4_str_to_int("32.64.144.0"); i++) {
-        munit_assert_int(ipv4_subnet_registry_check(reg, i), ==, 20);
+        munit_assert_int(check(i), ==, 20);
     }
 
-    munit_assert_int(ipv4_subnet_registry_check(reg, ipv4_str_to_int("10.19.255.255")), ==, -1);
-    munit_assert_int(ipv4_subnet_registry_check(reg, ipv4_str_to_int("10.21.0.0")), ==, -1);
-    munit_assert_int(ipv4_subnet_registry_check(reg, ipv4_str_to_int("32.64.127.255")), ==, -1);
-    munit_assert_int(ipv4_subnet_registry_check(reg, ipv4_str_to_int("32.64.144.0")), ==, -1);
+    munit_assert_int(check(ipv4_str_to_int("10.19.255.255")), ==, -1);
+    munit_assert_int(check(ipv4_str_to_int("10.21.0.0")), ==, -1);
+    munit_assert_int(check(ipv4_str_to_int("32.64.127.255")), ==, -1);
+    munit_assert_int(check(ipv4_str_to_int("32.64.144.0")), ==, -1);
 
-    ipv4_subnet_registry_add(reg, ipv4_str_to_int("0.0.0.0"), 0);
+    add(ipv4_str_to_int("0.0.0.0"), 0);
 
     for (size_t i = ipv4_str_to_int("10.20.0.0"); i < ipv4_str_to_int("10.21.0.0"); i++) {
-        munit_assert_int(ipv4_subnet_registry_check(reg, i), ==, 16);
+        munit_assert_int(check(i), ==, 16);
     }
     for (size_t i = ipv4_str_to_int("32.64.128.0"); i < ipv4_str_to_int("32.64.144.0"); i++) {
-        munit_assert_int(ipv4_subnet_registry_check(reg, i), ==, 20);
+        munit_assert_int(check(i), ==, 20);
     }
 
-    munit_assert_int(ipv4_subnet_registry_check(reg, ipv4_str_to_int("10.19.255.255")), ==, 0);
-    munit_assert_int(ipv4_subnet_registry_check(reg, ipv4_str_to_int("10.21.0.0")), ==, 0);
-    munit_assert_int(ipv4_subnet_registry_check(reg, ipv4_str_to_int("32.64.127.255")), ==, 0);
-    munit_assert_int(ipv4_subnet_registry_check(reg, ipv4_str_to_int("32.64.144.0")), ==, 0);
+    munit_assert_int(check(ipv4_str_to_int("10.19.255.255")), ==, 0);
+    munit_assert_int(check(ipv4_str_to_int("10.21.0.0")), ==, 0);
+    munit_assert_int(check(ipv4_str_to_int("32.64.127.255")), ==, 0);
+    munit_assert_int(check(ipv4_str_to_int("32.64.144.0")), ==, 0);
 
-    ipv4_subnet_registry_del(reg, ipv4_str_to_int("10.20.0.0"), 16);
+    del(ipv4_str_to_int("10.20.0.0"), 16);
     for (size_t i = ipv4_str_to_int("10.20.0.0"); i < ipv4_str_to_int("10.21.0.0"); i++) {
-        munit_assert_int(ipv4_subnet_registry_check(reg, i), ==, 0);
+        munit_assert_int(check(i), ==, 0);
     }
     for (size_t i = ipv4_str_to_int("32.64.128.0"); i < ipv4_str_to_int("32.64.144.0"); i++) {
-        munit_assert_int(ipv4_subnet_registry_check(reg, i), ==, 20);
+        munit_assert_int(check(i), ==, 20);
     }
 
-    ipv4_subnet_registry_del(reg, ipv4_str_to_int("0.0.0.0"), 0);
+    del(ipv4_str_to_int("0.0.0.0"), 0);
     for (size_t i = ipv4_str_to_int("10.20.0.0"); i < ipv4_str_to_int("10.21.0.0"); i++) {
-        munit_assert_int(ipv4_subnet_registry_check(reg, i), ==, -1);
+        munit_assert_int(check(i), ==, -1);
     }
     for (size_t i = ipv4_str_to_int("32.64.128.0"); i < ipv4_str_to_int("32.64.144.0"); i++) {
-        munit_assert_int(ipv4_subnet_registry_check(reg, i), ==, 20);
+        munit_assert_int(check(i), ==, 20);
     }
-    munit_assert_int(ipv4_subnet_registry_check(reg, ipv4_str_to_int("10.19.255.255")), ==, -1);
-    munit_assert_int(ipv4_subnet_registry_check(reg, ipv4_str_to_int("10.21.0.0")), ==, -1);
-    munit_assert_int(ipv4_subnet_registry_check(reg, ipv4_str_to_int("32.64.127.255")), ==, -1);
-    munit_assert_int(ipv4_subnet_registry_check(reg, ipv4_str_to_int("32.64.144.0")), ==, -1);
+    munit_assert_int(check(ipv4_str_to_int("10.19.255.255")), ==, -1);
+    munit_assert_int(check(ipv4_str_to_int("10.21.0.0")), ==, -1);
+    munit_assert_int(check(ipv4_str_to_int("32.64.127.255")), ==, -1);
+    munit_assert_int(check(ipv4_str_to_int("32.64.144.0")), ==, -1);
 
-    ipv4_subnet_registry_del(reg, ipv4_str_to_int("32.64.128.0"), 20);
+    del(ipv4_str_to_int("32.64.128.0"), 20);
     for (size_t i = ipv4_str_to_int("10.20.0.0"); i < ipv4_str_to_int("10.21.0.0"); i++) {
-        munit_assert_int(ipv4_subnet_registry_check(reg, i), ==, -1);
+        munit_assert_int(check(i), ==, -1);
     }
     for (size_t i = ipv4_str_to_int("32.64.128.0"); i < ipv4_str_to_int("32.64.144.0"); i++) {
-        munit_assert_int(ipv4_subnet_registry_check(reg, i), ==, -1);
+        munit_assert_int(check(i), ==, -1);
     }
-    munit_assert_int(ipv4_subnet_registry_check(reg, ipv4_str_to_int("10.19.255.255")), ==, -1);
-    munit_assert_int(ipv4_subnet_registry_check(reg, ipv4_str_to_int("10.21.0.0")), ==, -1);
-    munit_assert_int(ipv4_subnet_registry_check(reg, ipv4_str_to_int("32.64.127.255")), ==, -1);
-    munit_assert_int(ipv4_subnet_registry_check(reg, ipv4_str_to_int("32.64.144.0")), ==, -1);
-
-    ipv4_subnet_registry_destory(reg);
+    munit_assert_int(check(ipv4_str_to_int("10.19.255.255")), ==, -1);
+    munit_assert_int(check(ipv4_str_to_int("10.21.0.0")), ==, -1);
+    munit_assert_int(check(ipv4_str_to_int("32.64.127.255")), ==, -1);
+    munit_assert_int(check(ipv4_str_to_int("32.64.144.0")), ==, -1);
 }
 
-void ipv4_subnet_registry_many_subnets_test() {
-    struct Ipv4SubnetRegistry *reg = ipv4_subnet_registry_init();
+void prefix_tree_complex_test() {
     const struct Ipv4Subnet subnets[] = {
         {"10.0.0.0", 8},
         {"10.20.0.0", 16},
@@ -113,11 +109,7 @@ void ipv4_subnet_registry_many_subnets_test() {
     };
 
     for (size_t i = 0; i < sizeof(subnets) / sizeof(subnets[0]); i++) {
-        ipv4_subnet_registry_add(
-            reg,
-            ipv4_str_to_int(subnets[i].base),
-            subnets[i].mask
-        );
+        add(ipv4_str_to_int(subnets[i].base), subnets[i].mask);
     }
 
     const struct Ipv4SubnetCheck first_checks[] = {
@@ -154,13 +146,9 @@ void ipv4_subnet_registry_many_subnets_test() {
         {"203.0.113.255", 24},
         {"203.0.114.0", -1}
     };
-    assert_ipv4_subnet_registry_checks(
-        reg,
-        first_checks,
-        sizeof(first_checks) / sizeof(first_checks[0])
-    );
+    assert_checks(first_checks, sizeof(first_checks) / sizeof(first_checks[0]));
 
-    ipv4_subnet_registry_del(reg, ipv4_str_to_int("10.20.1.192"), 26);
+    del(ipv4_str_to_int("10.20.1.192"), 26);
     const struct Ipv4SubnetCheck second_checks[] = {
         {"10.20.1.0", 24},
         {"10.20.1.10", 24},
@@ -195,13 +183,10 @@ void ipv4_subnet_registry_many_subnets_test() {
         {"203.0.113.255", 24},
         {"203.0.114.0", -1}
     };
-    assert_ipv4_subnet_registry_checks(
-        reg,
-        second_checks,
-        sizeof(second_checks) / sizeof(second_checks[0])
-    );
 
-    ipv4_subnet_registry_del(reg, ipv4_str_to_int("10.20.1.128"), 25);
+    assert_checks(second_checks, sizeof(second_checks) / sizeof(second_checks[0]));
+
+    del(ipv4_str_to_int("10.20.1.128"), 25);
     const struct Ipv4SubnetCheck third_checks[] = {
         {"10.20.1.0", 24},
         {"10.20.1.10", 24},
@@ -237,13 +222,9 @@ void ipv4_subnet_registry_many_subnets_test() {
         {"203.0.114.0", -1}
     };
 
-    assert_ipv4_subnet_registry_checks(
-        reg,
-        third_checks,
-        sizeof(third_checks) / sizeof(third_checks[0])
-    );
+    assert_checks(third_checks, sizeof(third_checks) / sizeof(third_checks[0]));
 
-    ipv4_subnet_registry_del(reg, ipv4_str_to_int("10.20.1.0"), 24);
+    del(ipv4_str_to_int("10.20.1.0"), 24);
     const struct Ipv4SubnetCheck fourth_checks[] = {
         {"10.20.1.10", 16},  // CHANGES
         {"10.20.1.127", 16}, // CHANGES
@@ -277,13 +258,9 @@ void ipv4_subnet_registry_many_subnets_test() {
         {"203.0.113.255", 24},
         {"203.0.114.0", -1}
     };
-    assert_ipv4_subnet_registry_checks(
-        reg,
-        fourth_checks,
-        sizeof(fourth_checks) / sizeof(fourth_checks[0])
-    );
+    assert_checks(fourth_checks, sizeof(fourth_checks) / sizeof(fourth_checks[0]));
 
-    ipv4_subnet_registry_del(reg, ipv4_str_to_int("172.20.0.0"), 16);
+    del(ipv4_str_to_int("172.20.0.0"), 16);
     const struct Ipv4SubnetCheck fifth_checks[] = {
         {"10.20.1.10", 16},
         {"10.20.1.127", 16},
@@ -317,13 +294,9 @@ void ipv4_subnet_registry_many_subnets_test() {
         {"203.0.113.255", 24},
         {"203.0.114.0", -1}
     };
-    assert_ipv4_subnet_registry_checks(
-        reg,
-         fifth_checks,
-        sizeof(fifth_checks) / sizeof(fifth_checks[0])
-    );
+    assert_checks(fifth_checks, sizeof(fifth_checks) / sizeof(fifth_checks[0]));
 
-    ipv4_subnet_registry_del(reg, ipv4_str_to_int("172.16.0.0"), 12);
+    del(ipv4_str_to_int("172.16.0.0"), 12);
     const struct Ipv4SubnetCheck sixth_checks[] = {
         {"10.20.1.10", 16},
         {"10.20.1.127", 16},
@@ -358,13 +331,7 @@ void ipv4_subnet_registry_many_subnets_test() {
         {"203.0.114.0", -1}
 
     };
-    assert_ipv4_subnet_registry_checks(
-        reg,
-        sixth_checks,
-        sizeof(sixth_checks) / sizeof(sixth_checks[0])
-    );
-
-    ipv4_subnet_registry_destory(reg);
+    assert_checks(sixth_checks, sizeof(sixth_checks) / sizeof(sixth_checks[0]));
 }
 
 uint32_t ipv4_str_to_int(const char *str) {
